@@ -1,0 +1,231 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>夢の印税生活ちょっとまてお兄さんツール - 完全無欠版</title>
+    <style>
+        body { font-family: 'Helvetica Neue', Arial, sans-serif; background: #121212; color: #e0e0e0; text-align: center; padding: 20px; }
+        .container { max-width: 650px; margin: 0 auto; background: #1e1e1e; padding: 30px; border-radius: 15px; box-shadow: 0 4px 20px rgba(0,0,0,0.6); border: 1px solid #333; }
+        h1 { color: #ffcc00; font-size: 22px; margin-bottom: 5px; }
+        .subtitle { color: #aaa; font-size: 14px; margin-bottom: 25px; }
+        label { display: block; text-align: left; margin-top: 15px; font-weight: bold; font-size: 14px; color: #ccc; }
+        
+        /* UI改善セクションのスタイル */
+        .input-group { display: flex; gap: 10px; align-items: center; margin-top: 8px; }
+        input { flex: 1; padding: 12px; border-radius: 6px; border: 1px solid #444; font-size: 22px; font-weight: bold; background: #252525; color: #ffcc00; text-align: right; box-sizing: border-box; }
+        input:focus { border-color: #ffcc00; outline: none; }
+        .unit-text { font-size: 18px; font-weight: bold; color: #ccc; }
+        .jp-display { text-align: right; color: #ffcc00; font-weight: bold; font-size: 14px; margin-top: 4px; margin-bottom: 15px; min-height: 20px; }
+        
+        /* プリセットボタンのスタイル */
+        .preset-container { display: flex; gap: 6px; flex-wrap: wrap; margin-bottom: 20px; }
+        .preset-btn { background: #333; color: #fff; padding: 8px; font-size: 13px; font-weight: bold; border: 1px solid #444; border-radius: 5px; cursor: pointer; flex: 1; min-width: 70px; transition: background 0.2s; }
+        .preset-btn:hover { background: #444; border-color: #ffcc00; }
+        
+        select, .calc-btn { width: 100%; padding: 12px; margin: 8px 0; border-radius: 6px; border: 1px solid #444; font-size: 16px; box-sizing: border-box; }
+        select { background: #252525; color: #fff; }
+        .calc-btn { background: #ff3b30; color: white; font-weight: bold; border: none; cursor: pointer; margin-top: 20px; font-size: 18px; transition: background 0.2s; }
+        .calc-btn:hover { background: #e03228; }
+        
+        /* 結果表示エリアのスタイル */
+        .result-box { display: none; margin-top: 25px; padding: 25px; background: #000; border: 3px solid #ff3b30; border-radius: 10px; text-align: left; }
+        .alert-title { color: #ff3b30; font-size: 24px; font-weight: bold; text-align: center; animation: blink 1.2s infinite; margin-bottom: 15px; }
+        .section-title { font-weight: bold; color: #ffcc00; border-left: 4px solid #ffcc00; padding-left: 8px; margin-top: 20px; margin-bottom: 10px; }
+        .highlight { color: #ffcc00; font-weight: bold; }
+        .danger { color: #ff3b30; font-weight: bold; }
+        .safe { color: #4cd964; font-weight: bold; font-size: 20px; }
+        .disclaimer { font-size: 11px; color: #777; margin-top: 20px; text-align: center; line-height: 1.4; }
+        @keyframes blink { 0% { opacity: 1; } 50% { opacity: 0.4; } 100% { opacity: 1; } }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <h1>💰 夢の印税生活ちょっとまてお兄さんツール</h1>
+    <div class="subtitle">〜ガチの国内税制ロジックで叩き出す現実の絶望〜</div>
+    
+    <label>■ 想定されるゲーム総売上</label>
+    <div class="input-group">
+        <input type="number" id="revenue_man" value="5000" min="0" oninput="updateAmountDisplay()">
+        <span class="unit-text">万円</span>
+    </div>
+    <div id="jpAmountDisplay" class="jp-display">（現在の入力：5,000万円）</div>
+
+    <div class="preset-container">
+        <button type="button" class="preset-btn" onclick="setPresetAmount(1000)">1000万</button>
+        <button type="button" class="preset-btn" onclick="setPresetAmount(5000)">5000万</button>
+        <button type="button" class="preset-btn" onclick="setPresetAmount(10000)">1億円</button>
+        <button type="button" class="preset-btn" onclick="setPresetAmount(50000)">5億円</button>
+        <button type="button" class="preset-btn" onclick="setPresetAmount(100000)">10億円</button>
+    </div>
+
+    <label>■ 開発メンバーの人数（※対策なしの山分けリスク判定用）</label>
+    <select id="members">
+        <option value="1">1人（ソロ開発）</option>
+        <option value="2">2人（チーム開発・代表者一括受取）</option>
+    </select>
+
+    <button class="calc-btn" onclick="calculateProTax()">現実を計算する</button>
+
+    <div id="result" class="result-box">
+        <div class="alert-title">🚨 ちょっと待てちょっと待てお兄さん！！！</div>
+        
+        <div class="section-title">1. 手数料差し引き後の分配</div>
+        <p>💸 <b>Steam等手数料(30%):</b> <span id="fee">0</span> 円</p>
+        <p>💰 <b>チームに入ってくる純収入:</b> <span id="netIncome" class="highlight">0</span> 円</p>
+        <p>👤 <b>代表者口座への着金額:</b> <span id="receivedAmount">0</span> 円</p>
+
+        <div id="teamAlert" style="background: #3a2200; padding: 12px; border-radius: 5px; border-left: 5px solid #ff9500; margin: 15px 0; display: none;">
+            ⚠️ <b>贈与税のアラート：</b> 事前の組合契約等がない場合、相方へ半額送金した時点で相方に<b>最大55%の贈与税</b>（約<span id="giftTax">0</span>円）が課されるか、代表者の売上過少申告を疑われる最悪の二重課税ルートに突入します！
+        </div>
+
+        <div class="section-title">2. 個人事業主（代表者）を襲う税金コンボ</div>
+        <p>👹 <b>【1年目】所得税（超過累進＋復興特別所得税2.1%）:</b> <span id="incomeTax">0</span> 円</p>
+        <p>👹 <b>【2年目春】住民税（一律10%）:</b> <span id="inhabitantTax">0</span> 円</p>
+        <p>👹 <b>【2年目夏】個人事業税（一律5% ※控除有）:</b> <span id="enterpriseTax">0</span> 円</p>
+        <p>💀 <b>【2年目夏・秋】所得税の予定納税（前年の2/3）:</b> <span id="prepaidTax" class="danger">0</span> 円</p>
+        
+        <hr style="border-color: #333; margin: 20px 0;">
+        <p>😭 <b>2年間で税金（予定納税含む）に消える総額:</b> <span id="totalTax" class="danger">0</span> 円</p>
+        <p>📊 <b>実質的に手元に残していい安全な現金:</b> <span id="finalCash" class="safe">0</span> 円</p>
+        
+        <div style="background: #1a3a1a; padding: 15px; border-radius: 5px; border-left: 5px solid #4cd964; margin-top: 20px; color: #e0e0e0;">
+            <span style="font-weight: bold; color: #4cd964; font-size: 16px;">💡 もし大ヒットの前に「法人化」していたら…</span><br>
+            <p style="margin: 5px 0 0 0;">法人税の実効税率（約34%と仮定）が適用されるため、個人事業主のままでいるより、会社全体で最大 <span id="lossAmount" style="color: #ffcc00; font-weight: bold; font-size: 18px;">0</span> 円も多くのキャッシュを次回作の開発資金として合法的に手元に残せました！</p>
+            <p style="text-align: center; margin-top: 10px; font-weight: bold; color: #ffcc00; margin-bottom: 0;">👉 結論：今すぐ会社を作って優秀な税理士を雇え！</p>
+        </div>
+        
+        <div class="disclaimer">
+            ※本ツールは、青色申告特別控除(65万円)および基礎控除(48万円)を適用し、2037年まで課される復興特別所得税(2.1%)を加算した日本の税制に基づくシミュレーションです。その他の経費や所得控除、法人化時の役員報酬配分設計は考慮していません。実際の税務は必ず税理士にご相談ください。
+        </div>
+    </div>
+</div>
+
+<script>
+// 日本の所得税率テーブル（超過累進課税）
+const INCOME_TAX_TABLE = [
+    { limit: 1950000,    rate: 0.05, deduction: 0 },
+    { limit: 3300000,    rate: 0.10, deduction: 97500 },
+    { limit: 6950000,    rate: 0.20, deduction: 427500 },
+    { limit: 9000000,    rate: 0.23, deduction: 636000 },
+    { limit: 18000000,   rate: 0.33, deduction: 1536000 },
+    { limit: 40000000,   rate: 0.40, deduction: 2796000 },
+    { limit: Infinity,   rate: 0.45, deduction: 4796000 }
+];
+
+// 簡易贈与税テーブル（一般贈与用ロジック）
+function calculateGiftTax(amount) {
+    const value = amount - 1100000; // 基礎控除110万
+    if (value <= 0) return 0;
+    if (value <= 2000000)  return value * 0.10;
+    if (value <= 3000000)  return value * 0.15 - 100000;
+    if (value <= 4000000)  return value * 0.20 - 250000;
+    if (value <= 6000000)  return value * 0.30 - 650000;
+    if (value <= 10000000) return value * 0.40 - 1250000;
+    if (value <= 15000000) return value * 0.45 - 1750000;
+    if (value <= 30000000) return value * 0.50 - 2500000;
+    return value * 0.55 - 4000000;
+}
+
+// プリセットボタン用の制御関数
+function setPresetAmount(value) {
+    document.getElementById('revenue_man').value = value;
+    updateAmountDisplay();
+}
+
+// リアルタイムで日本語表記（億・万）に動的変換する表示ロジック
+function updateAmountDisplay() {
+    const manValue = parseFloat(document.getElementById('revenue_man').value) || 0;
+    if (manValue === 0) {
+        document.getElementById('jpAmountDisplay').innerText = "（現在の入力：0円）";
+        return;
+    }
+    
+    const oku = Math.floor(manValue / 10000);
+    const man = manValue % 10000;
+    
+    let text = "";
+    if (oku > 0) text += oku + "億";
+    if (man > 0) text += man.toLocaleString() + "万";
+    
+    document.getElementById('jpAmountDisplay').innerText = `（現在の入力：${text}円）`;
+}
+
+// メインのガチ税金計算ロジック
+function calculateProTax() {
+    // 万円入力を「円」の単位に内部変換
+    const revenue = (parseFloat(document.getElementById('revenue_man').value) || 0) * 10000;
+    const members = parseInt(document.getElementById('members').value);
+    
+    if (revenue <= 0) {
+        alert('正しい売上金額を入力してください');
+        return;
+    }
+
+    // 1. プラットフォーム手数料 (30%)
+    const fee = Math.floor(revenue * 0.30);
+    const netIncome = revenue - fee;
+
+    // 2. 所得税計算 (青色申告控除65万、基礎控除48万を差し引いた課税所得がベース)
+    const totalDeductions = 650000 + 480000;
+    const taxableIncome = Math.max(0, netIncome - totalDeductions);
+    
+    let baseIncomeTax = 0;
+    for (const tier of INCOME_TAX_TABLE) {
+        if (taxableIncome <= tier.limit) {
+            baseIncomeTax = Math.floor((taxableIncome * tier.rate) - tier.deduction);
+            break;
+        }
+    }
+    
+    // 【修正点①】基準所得税額に復興特別所得税(2.1%)を確実に上乗せ
+    const incomeTax = Math.floor(baseIncomeTax * 1.021);
+
+    // 3. 住民税計算 (課税所得の10% + 均等割5000円)
+    const inhabitantTax = Math.floor(taxableIncome * 0.10) + 5000;
+
+    // 4. 個人事業税計算 (純収入 - 事業主控除290万) × 一律5%
+    const enterpriseTaxable = Math.max(0, netIncome - 2900000);
+    const enterpriseTax = Math.floor(enterpriseTaxable * 0.05);
+
+    // 5. 所得税の予定納税（前年の所得税額が15万円以上の場合、その2/3が翌年に強制徴収される）
+    const prepaidTax = incomeTax >= 150000 ? Math.floor(incomeTax * (2 / 3)) : 0;
+
+    // 6. 個人事業主の総税額と最終手残り
+    const totalTax = incomeTax + inhabitantTax + enterpriseTax + prepaidTax;
+    const finalCash = Math.max(0, netIncome - totalTax);
+
+    // 7. 贈与税（2人チームの場合、半額を何の契約もなく送金したと仮定した恐怖の試算）
+    const halfAmount = netIncome / 2;
+    const giftTax = Math.floor(calculateGiftTax(halfAmount));
+
+    // 【修正点②】法人化シミュレーション（実効税率約34%と仮定）と、個人事業主のまま突っ走って損する差額
+    const corporateTax = Math.floor(netIncome * 0.34);
+    const corporateFinalCash = netIncome - corporateTax;
+    let lossAmount = corporateFinalCash - finalCash;
+    if (lossAmount < 0) lossAmount = 0; // 売上が低く、個人の方が税金が安い場合は0にする安全設計
+
+    // 結果のUI出力へのマッピング
+    document.getElementById('fee').innerText = fee.toLocaleString();
+    document.getElementById('netIncome').innerText = netIncome.toLocaleString();
+    document.getElementById('receivedAmount').innerText = netIncome.toLocaleString();
+    document.getElementById('incomeTax').innerText = incomeTax.toLocaleString();
+    document.getElementById('inhabitantTax').innerText = inhabitantTax.toLocaleString();
+    document.getElementById('enterpriseTax').innerText = enterpriseTax.toLocaleString();
+    document.getElementById('prepaidTax').innerText = prepaidTax.toLocaleString();
+    document.getElementById('totalTax').innerText = totalTax.toLocaleString();
+    document.getElementById('finalCash').innerText = finalCash.toLocaleString();
+    document.getElementById('giftTax').innerText = giftTax.toLocaleString();
+    document.getElementById('lossAmount').innerText = lossAmount.toLocaleString();
+
+    // 2人以上のチームかソロ開発かによる警告文の出し分け
+    document.getElementById('teamAlert').style.display = (members >= 2) ? 'block' : 'none';
+    
+    // 計算結果エリアを展開
+    document.getElementById('result').style.display = 'block';
+}
+</script>
+
+</body>
+</html>
