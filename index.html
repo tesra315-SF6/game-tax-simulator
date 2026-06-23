@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>夢の印税生活ちょっとまてお兄さんツール - 完全無欠版</title>
+    <title>夢の印税生活ちょっとまてお兄さんツール - 最悪ケース可視化版</title>
     <style>
         body { font-family: 'Helvetica Neue', Arial, sans-serif; background: #121212; color: #e0e0e0; text-align: center; padding: 20px; }
         .container { max-width: 650px; margin: 0 auto; background: #1e1e1e; padding: 30px; border-radius: 15px; box-shadow: 0 4px 20px rgba(0,0,0,0.6); border: 1px solid #333; }
@@ -35,7 +35,7 @@
         .highlight { color: #ffcc00; font-weight: bold; }
         .danger { color: #ff3b30; font-weight: bold; }
         .safe { color: #4cd964; font-weight: bold; font-size: 20px; }
-        .disclaimer { font-size: 11px; color: #777; margin-top: 20px; text-align: center; line-height: 1.4; }
+        .disclaimer { font-size: 12px; color: #aaa; margin-top: 25px; text-align: left; line-height: 1.5; background: #222; padding: 15px; border-radius: 6px; border: 1px solid #444; }
         @keyframes blink { 0% { opacity: 1; } 50% { opacity: 0.4; } 100% { opacity: 1; } }
     </style>
 </head>
@@ -43,7 +43,7 @@
 
 <div class="container">
     <h1>💰 夢の印税生活ちょっとまてお兄さんツール</h1>
-    <div class="subtitle">〜ガチの国内税制ロジックで叩き出す現実の絶望〜</div>
+    <div class="subtitle">〜何の準備もせず大ヒットした【最悪ケース】の現実〜</div>
     
     <label>■ 想定されるゲーム総売上</label>
     <div class="input-group">
@@ -60,16 +60,17 @@
         <button type="button" class="preset-btn" onclick="setPresetAmount(100000)">10億円</button>
     </div>
 
-    <label>■ 開発メンバーの人数（※対策なしの山分けリスク判定用）</label>
+    <label>■ 開発体制（※ノーガード時のリスク判定用）</label>
     <select id="members">
         <option value="1">1人（ソロ開発）</option>
-        <option value="2">2人（チーム開発・代表者一括受取）</option>
+        <option value="2">2人（チーム開発・事前の組合契約なし・代表者が一括受取）</option>
     </select>
 
-    <button class="calc-btn" onclick="calculateProTax()">現実を計算する</button>
+    <button class="calc-btn" onclick="calculateProTax()">最悪ルートの現実を計算する</button>
 
     <div id="result" class="result-box">
         <div class="alert-title">🚨 ちょっと待てちょっと待てお兄さん！！！</div>
+        <p style="color: #ff3b30; text-align: center; font-weight: bold; font-size: 14px; margin-top: -10px; margin-bottom: 20px;">⚠️ 注意：これは一切の税務対策をしなかった場合の【デスゲーム確定ルート】です</p>
         
         <div class="section-title">1. 手数料差し引き後の分配</div>
         <p>💸 <b>Steam等手数料(30%):</b> <span id="fee">0</span> 円</p>
@@ -77,7 +78,9 @@
         <p>👤 <b>代表者口座への着金額:</b> <span id="receivedAmount">0</span> 円</p>
 
         <div id="teamAlert" style="background: #3a2200; padding: 12px; border-radius: 5px; border-left: 5px solid #ff9500; margin: 15px 0; display: none;">
-            ⚠️ <b>贈与税のアラート：</b> 事前の組合契約等がない場合、相方へ半額送金した時点で相方に<b>最大55%の贈与税</b>（約<span id="giftTax">0</span>円）が課されるか、代表者の売上過少申告を疑われる最悪の二重課税ルートに突入します！
+            ⚠️ <b>【山分け時の贈与税の罠】</b><br>
+            事前の組合契約（LLPや任意組合等）がない状態で、代表者が善意で相方に半額送金すると、税務上は単なる「個人から個人へのプレゼント」とみなされ、相方に<b>最大55%の贈与税</b>（約<span id="giftTax">0</span>円）が課されるか、代表者の売上過少申告を疑われる最悪の二重課税リスクに突入します！<br>
+            <span style="color: #ffcc00; font-size: 13px;">※最初から共同開発の強固な証拠（契約等）があれば回避可能です。</span>
         </div>
 
         <div class="section-title">2. 個人事業主（代表者）を襲う税金コンボ</div>
@@ -85,19 +88,21 @@
         <p>👹 <b>【2年目春】住民税（一律10%）:</b> <span id="inhabitantTax">0</span> 円</p>
         <p>👹 <b>【2年目夏】個人事業税（一律5% ※控除有）:</b> <span id="enterpriseTax">0</span> 円</p>
         <p>💀 <b>【2年目夏・秋】所得税の予定納税（前年の2/3）:</b> <span id="prepaidTax" class="danger">0</span> 円</p>
+        <p style="color: #aaa; font-size: 13px; margin-top: -5px; margin-left: 20px;">※翌年の売上が激減することが明らかな場合は「減額申請」で回避可能ですが、知識ゼロで通帳のお金を使い切っているとこの時点で自己破産します。</p>
         
         <hr style="border-color: #333; margin: 20px 0;">
         <p>😭 <b>2年間で税金（予定納税含む）に消える総額:</b> <span id="totalTax" class="danger">0</span> 円</p>
         <p>📊 <b>実質的に手元に残していい安全な現金:</b> <span id="finalCash" class="safe">0</span> 円</p>
         
         <div style="background: #1a3a1a; padding: 15px; border-radius: 5px; border-left: 5px solid #4cd964; margin-top: 20px; color: #e0e0e0;">
-            <span style="font-weight: bold; color: #4cd964; font-size: 16px;">💡 もし大ヒットの前に「法人化」していたら…</span><br>
-            <p style="margin: 5px 0 0 0;">法人税の実効税率（約34%と仮定）が適用されるため、個人事業主のままでいるより、会社全体で最大 <span id="lossAmount" style="color: #ffcc00; font-weight: bold; font-size: 18px;">0</span> 円も多くのキャッシュを次回作の開発資金として合法的に手元に残せました！</p>
-            <p style="text-align: center; margin-top: 10px; font-weight: bold; color: #ffcc00; margin-bottom: 0;">👉 結論：今すぐ会社を作って優秀な税理士を雇え！</p>
+            <span style="font-weight: bold; color: #4cd964; font-size: 16px;">💡 もし大ヒットの前に「法人化」していら…</span><br>
+            <p style="margin: 5px 0 0 0;">法人税の実効税率（約34%と仮定）が適用されるため、個人事業主のノーガード状態でいるより、会社全体で最大 <span id="lossAmount" style="color: #ffcc00; font-weight: bold; font-size: 18px;">0</span> 円も多くのキャッシュを次回作の開発資金として合法的に手元に残せました！</p>
+            <p style="text-align: center; margin-top: 10px; font-weight: bold; color: #ffcc00; margin-bottom: 0;">👉 結論：大ヒットの兆しが見えたら、今すぐ会社を作って税理士を雇え！</p>
         </div>
         
         <div class="disclaimer">
-            ※本ツールは、青色申告特別控除(65万円)および基礎控除(48万円)を適用し、2037年まで課される復興特別所得税(2.1%)を加算した日本の税制に基づくシミュレーションです。その他の経費や所得控除、法人化時の役員報酬配分設計は考慮していません。実際の税務は必ず税理士にご相談ください。
+            <b>📢 税理士の先生方も納得の免責事項（ディスクレイマー）</b><br>
+            本ツールは、青色申告特別控除(65万円)および基礎控除(48万円)を適用し、復興特別所得税(2.1%)を加算した日本の税制に基づく<b>【事前の税務対策を一切行わなかった場合の簡易シミュレーション】</b>です。その他の経費、各種所得控除、法人化時の役員報酬配分などは考慮していません。実際の売上規模や開発体制に応じた適切な節税・税務対策（予定納税の減額申請、任意組合契約、法人成りのタイミング等）については、必ず事前に信頼できる税理士へご相談ください。
         </div>
     </div>
 </div>
@@ -179,7 +184,7 @@ function calculateProTax() {
         }
     }
     
-    // 【修正点①】基準所得税額に復興特別所得税(2.1%)を確実に上乗せ
+    // 基準所得税額に復興特別所得税(2.1%)を確実に上乗せ
     const incomeTax = Math.floor(baseIncomeTax * 1.021);
 
     // 3. 住民税計算 (課税所得の10% + 均等割5000円)
@@ -200,7 +205,7 @@ function calculateProTax() {
     const halfAmount = netIncome / 2;
     const giftTax = Math.floor(calculateGiftTax(halfAmount));
 
-    // 【修正点②】法人化シミュレーション（実効税率約34%と仮定）と、個人事業主のまま突っ走って損する差額
+    // 法人化シミュレーション（実効税率約34%と仮定）と、個人事業主のまま突っ走って損する差額
     const corporateTax = Math.floor(netIncome * 0.34);
     const corporateFinalCash = netIncome - corporateTax;
     let lossAmount = corporateFinalCash - finalCash;
